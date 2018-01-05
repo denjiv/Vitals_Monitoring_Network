@@ -1,15 +1,10 @@
 /**
- * @brief BLE LED Button Service central and client application main file.
+ * @brief BLE Node Station main file.
  *
- * This example can be a central for up to 8 peripherals.
- * The peripheral is called ble_app_blinky and can be found in the ble_peripheral
- * folder.
+ * This Node Station collects advertisements from the main statino and re-advertises the message.
  */
 
 #include "node.h"
-
-//static ble_lbs_c_t        m_ble_lbs_c[TOTAL_LINK_COUNT];           /**< Main structures used by the LED Button client module. */
-//static ble_db_discovery_t m_ble_db_discovery[TOTAL_LINK_COUNT];    /**< list of DB structures used by the database discovery module. */
 
 /**@brief Function to handle asserts in the SoftDevice.
  *
@@ -100,45 +95,45 @@ static void on_adv_report(const ble_evt_t * const p_ble_evt)
     adv_data.size   = p_gap_evt->params.adv_report.dlen;
 
     // Check if the advertisement data is relevant (0x5900)
-		if (adv_data.p_data[5] == 0x59 && adv_data.p_data[6] == 0x00 && prev_count != adv_data.p_data[8]) {
-				sd_ble_gap_adv_stop();
+	if (adv_data.p_data[5] == 0x59 && adv_data.p_data[6] == 0x00 && prev_count != adv_data.p_data[8]) {
+		sd_ble_gap_adv_stop();
 
-        // Copy the scanned message to the advertisement message
-				prev_count = adv_data.p_data[8];
-				memcpy(m_beacon_info, (uint8_t *)&(adv_data.p_data[7]), APP_BEACON_INFO_LENGTH);
+	// Copy the scanned message to the advertisement message
+		prev_count = adv_data.p_data[8];
+		memcpy(m_beacon_info, (uint8_t *)&(adv_data.p_data[7]), APP_BEACON_INFO_LENGTH);
 
-				uint32_t      err_code;
-				ble_advdata_t advdata;
-				uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
+		uint32_t      err_code;
+		ble_advdata_t advdata;
+		uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
 
-				ble_advdata_manuf_data_t manuf_specific_data;
+		ble_advdata_manuf_data_t manuf_specific_data;
 
-				manuf_specific_data.company_identifier = 0x0159;
-				manuf_specific_data.data.p_data = (uint8_t *) m_beacon_info;
-				manuf_specific_data.data.size   = APP_BEACON_INFO_LENGTH;
+		manuf_specific_data.company_identifier = 0x0159;
+		manuf_specific_data.data.p_data = (uint8_t *) m_beacon_info;
+		manuf_specific_data.data.size   = APP_BEACON_INFO_LENGTH;
 
-				// Build and set advertising data.
-				memset(&advdata, 0, sizeof(advdata));
+		// Build and set advertising data.
+		memset(&advdata, 0, sizeof(advdata));
 
-				advdata.name_type             = BLE_ADVDATA_NO_NAME;
-				advdata.flags                 = flags;
-				advdata.p_manuf_specific_data = &manuf_specific_data;
+		advdata.name_type             = BLE_ADVDATA_NO_NAME;
+		advdata.flags                 = flags;
+		advdata.p_manuf_specific_data = &manuf_specific_data;
 
-				err_code = ble_advdata_set(&advdata, NULL);
-				APP_ERROR_CHECK(err_code);
+		err_code = ble_advdata_set(&advdata, NULL);
+		APP_ERROR_CHECK(err_code);
 
-				// Initialize advertising parameters (used when starting advertising).
-				memset(&m_adv_params, 0, sizeof(m_adv_params));
+		// Initialize advertising parameters (used when starting advertising).
+		memset(&m_adv_params, 0, sizeof(m_adv_params));
 
-				m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_NONCONN_IND;
-				m_adv_params.p_peer_addr = NULL;                             // Undirected advertisement.
-				m_adv_params.fp          = BLE_GAP_ADV_FP_ANY;
-				m_adv_params.interval    = NON_CONNECTABLE_ADV_INTERVAL;
-				m_adv_params.timeout     = 0;
+		m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_NONCONN_IND;
+		m_adv_params.p_peer_addr = NULL;                             // Undirected advertisement.
+		m_adv_params.fp          = BLE_GAP_ADV_FP_ANY;
+		m_adv_params.interval    = NON_CONNECTABLE_ADV_INTERVAL;
+		m_adv_params.timeout     = 0;
 
-				err_code = sd_ble_gap_adv_start(&m_adv_params);
-				APP_ERROR_CHECK(err_code);
-		}
+		err_code = sd_ble_gap_adv_start(&m_adv_params);
+		APP_ERROR_CHECK(err_code);
+	}
 }
 
 /**@brief Function for handling BLE Stack events concerning central applications.
