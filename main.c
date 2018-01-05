@@ -171,8 +171,8 @@ void saadc_sampling_event_enable(void)
  */
 void temp_sensor (void)
 {
-		ret_code_t err_code;
-		uint8_t read_command = 0x07;
+    ret_code_t err_code;
+    uint8_t read_command = 0x07;
     bool detected_device = false;
 
     err_code =  nrf_drv_twi_tx(&m_twi, TEMP_ADDR, &read_command, 1, true);
@@ -213,27 +213,27 @@ void read_accel()
 
 	if (err_code == NRF_SUCCESS) {
 
-			double x = accel_data[0];
-			double y = accel_data[1];
-			double z = accel_data[2];
-			NRF_LOG_INFO("X accel: %x\r\n", accel_data[0]);
-			NRF_LOG_FLUSH();
-		  NRF_LOG_INFO("Y accel: %x\r\n", accel_data[1]);
-			NRF_LOG_FLUSH();
-		  NRF_LOG_INFO("Z accel: %x\r\n", accel_data[2]);
-			NRF_LOG_FLUSH();
-		  if (x > 79) x -= 256;
-			if (y > 79) y -= 256;
-			if (z > 79) z -= 256;
-			x = x * 0.0672 * 9.8;
-			y = y * 0.0672 * 9.8;
-			z = z * 0.0672 * 9.8;
-			NRF_LOG_INFO("X accel:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(x));
-			NRF_LOG_FLUSH();
-			NRF_LOG_INFO("Y accel:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(y));
-			NRF_LOG_FLUSH();
-			NRF_LOG_INFO("Z accel:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(z));
-			NRF_LOG_FLUSH();
+		double x = accel_data[0];
+		double y = accel_data[1];
+		double z = accel_data[2];
+		NRF_LOG_INFO("X accel: %x\r\n", accel_data[0]);
+		NRF_LOG_FLUSH();
+		NRF_LOG_INFO("Y accel: %x\r\n", accel_data[1]);
+		NRF_LOG_FLUSH();
+	  	NRF_LOG_INFO("Z accel: %x\r\n", accel_data[2]);
+		NRF_LOG_FLUSH();
+	  	if (x > 79) x -= 256;
+		if (y > 79) y -= 256;
+		if (z > 79) z -= 256;
+		x = x * 0.0672 * 9.8;
+		y = y * 0.0672 * 9.8;
+		z = z * 0.0672 * 9.8;
+		NRF_LOG_INFO("X accel:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(x));
+		NRF_LOG_FLUSH();
+		NRF_LOG_INFO("Y accel:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(y));
+		NRF_LOG_FLUSH();
+		NRF_LOG_INFO("Z accel:" NRF_LOG_FLOAT_MARKER "\r\n", NRF_LOG_FLOAT(z));
+		NRF_LOG_FLUSH();
 	}
 }
 
@@ -244,36 +244,36 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 {
     if (p_event->type == NRF_DRV_SAADC_EVT_DONE)
     {
-				ret_code_t err_code;
-				nrf_gpio_pin_toggle(7);
+	ret_code_t err_code;
+	nrf_gpio_pin_toggle(7);
         err_code = nrf_drv_saadc_buffer_convert(p_event->data.done.p_buffer, SAMPLES_IN_BUFFER);
         APP_ERROR_CHECK(err_code);
 
-				uint8_t index = 2;
+	uint8_t index = 2;
 
-				m_beacon_info[1] = temp++;
-				for (uint8_t i = 0; i < SAMPLES_IN_BUFFER; i++)
+	m_beacon_info[1] = temp++;
+	for (uint8_t i = 0; i < SAMPLES_IN_BUFFER; i++)
         {
             m_beacon_info[index++] = p_event->data.done.p_buffer[i];
         }
-				temp_sensor();
-				m_beacon_info[index++] = temperature_data[1];
-				m_beacon_info[index++] = temperature_data[0];
-				read_accel();
-				m_beacon_info[index++] = accel_data[0];
-				m_beacon_info[index++] = accel_data[1];
-				m_beacon_info[index++] = accel_data[2];
-				sd_ble_gap_adv_stop();
-				advertising_init();
-				advertising_start();
+	temp_sensor();
+	m_beacon_info[index++] = temperature_data[1];
+	m_beacon_info[index++] = temperature_data[0];
+	read_accel();
+	m_beacon_info[index++] = accel_data[0];
+	m_beacon_info[index++] = accel_data[1];
+	m_beacon_info[index++] = accel_data[2];
+	sd_ble_gap_adv_stop();
+	advertising_init();
+	advertising_start();
 
         // Timeout after 30 mesurements
-				if (temp%30 == 0) {
-						if (motion == 0) {
-								NRF_POWER->SYSTEMOFF = 1;
-						}
-						motion = 0;
-				}
+	if (temp%30 == 0) {
+		if (motion == 0) {
+			NRF_POWER->SYSTEMOFF = 1;
+		}
+		motion = 0;
+	}
 
 
     }
@@ -429,16 +429,16 @@ void gpiote_config (void)
 {
 	ret_code_t err_code;
 
-    err_code = nrf_drv_gpiote_init();
-    APP_ERROR_CHECK(err_code);
+	err_code = nrf_drv_gpiote_init();
+	APP_ERROR_CHECK(err_code);
 
-    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(false);
-    in_config.pull = NRF_GPIO_PIN_PULLUP;
+	nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(false);
+	in_config.pull = NRF_GPIO_PIN_PULLUP;
 
-    err_code = nrf_drv_gpiote_in_init(25, &in_config, in_pin_handler);
-    APP_ERROR_CHECK(err_code);
+	err_code = nrf_drv_gpiote_in_init(25, &in_config, in_pin_handler);
+	APP_ERROR_CHECK(err_code);
 
-    nrf_drv_gpiote_in_event_enable(25, true);
+	nrf_drv_gpiote_in_event_enable(25, true);
 }
 
 /**
@@ -446,32 +446,32 @@ void gpiote_config (void)
  */
 int main(void)
 {
-    uint32_t err_code;
-    // Initialize.
-    err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
-		nrf_gpio_cfg_output(7);
-    APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
-    ble_stack_init();
+	uint32_t err_code;
+	// Initialize.
+	err_code = NRF_LOG_INIT(NULL);
+	APP_ERROR_CHECK(err_code);
+	nrf_gpio_cfg_output(7);
+	APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
+	ble_stack_init();
 
-		// Start Heart Rate sensor
-		saadc_init();
-    saadc_sampling_event_init();
-    saadc_sampling_event_enable();
+	// Start Heart Rate sensor
+	saadc_init();
+	saadc_sampling_event_init();
+	saadc_sampling_event_enable();
 
-    // Start I2C
-		twi_init();
-		temp_sensor();
-		accel_config();
-		gpiote_config();
+    	// Start I2C
+	twi_init();
+	temp_sensor();
+	accel_config();
+	gpiote_config();
 
-	  // Start execution.
-		advertising_init();
-		advertising_start();
-    while (1)
-    {
-				power_manage();
-		}
+	// Start execution.
+	advertising_init();
+	advertising_start();
+	while (1)
+	{
+		power_manage();
+	}
 }
 
 
